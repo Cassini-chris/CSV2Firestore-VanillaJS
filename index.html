@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>CSV-2-Firestore</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="assets/img/fav/favicon.ico">
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <!-- <link rel="stylesheet" href="assets/css/custom.css"> -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/fav/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/fav/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/img/fav/favicon-16x16.png">
+
+  <!-- Load fonts style after rendering the layout styles -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
+  <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <!-- Load Google Font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+
+  <script type="module" src="_add_data_csv.js" async defer></script>
+
+  <script>
+    // Create Global Arrays
+    var full_text = [];
+    var table = [];
+    var rows = [];
+    var cells = [];
+    var lines = [];
+
+    function handleFiles(files) {
+      // Max Size Upload
+      if (files[0].size > 10971520) {
+        alert("File is too big! Max size: 10MB.");
+        return;
+      };
+      if (window.FileReader) {
+        // FileReader are supported.
+        getAsText(files[0]);
+      } else {
+        alert('FileReader are not supported in this browser.');
+      }
+    }
+
+    function getAsText(fileToRead) {
+      var reader = new FileReader();
+      // Read file into memory as UTF-8
+      reader.readAsText(fileToRead);
+      // Handle errors load
+      reader.onload = loadHandler;
+      reader.onerror = errorHandler;
+    }
+
+    function loadHandler(event) {
+      // Create Preview Table of CSV for 5 rows
+      var csv = event.target.result;
+      var heading_table = document.createElement("h5");
+      var table = document.createElement("table");
+      var rows = event.target.result.split("\n");
+      for (var i = 0; i < rows.length; i++) {
+        var cells = rows[i].split(",");
+        if (cells.length >= 1) {
+          var row = table.insertRow(-1);
+          if (i < 5) {
+            for (var j = 0; j < cells.length; j++) {
+              var cell = row.insertCell(-1);
+              cell.innerHTML = cells[j];
+            }
+          }
+        }
+      }
+      var dvCSV = document.getElementById("dvCSV");
+      dvCSV.innerHTML = "";
+      heading_table.innerHTML = "Import Snapshot";
+      dvCSV.appendChild(heading_table);
+      dvCSV.appendChild(table);
+      table.setAttribute("class", "table table-dark");
+      table.setAttribute('id', 'output_table');
+      processData(csv);
+    }
+
+    function processData(csv) {
+      var allTextLines = csv.split(/\r\n|\n/);
+      console.log(allTextLines);
+      for (var i = 0; i < allTextLines.length; i++) {
+        var data = allTextLines[i].split(';');
+        var tarr = [];
+        for (var j = 0; j < data.length; j++) {
+          tarr.push(data[j]);
+        }
+        lines.push(tarr);
+      }
+    };
+
+    function errorHandler(evt) {
+      if (evt.target.error.name == "NotReadableError") {
+        alert("Cannot read file !");
+      }
+    }
+  </script>
+
+</head>
+
+<body>
+
+  <body>
+    <!-- Start Top Nav -->
+    <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
+      <div class="container text-light">
+        <div class="w-100 d-flex justify-content-between">
+          <div>
+            <a class="navbar-sm-brand text-light text-decoration-none">Upload CSV to Firestore</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- Close Top Nav -->
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light shadow">
+      <div class="container d-flex justify-content-between align-items-center" style="color:#212934">
+        <a class="navbar-brand text-success logo h2 align-self-center" id="heading_text" href="index.html"
+          style="font-family: 'Cairo', sans-serif; color:whitesmoke !important">
+          CSV-2-Firestore
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+          data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+    </nav>
+    <!-- Close Header -->
+
+
+    <section class="bg-light">
+      <div class="container py-5">
+
+        <div class="col-lg-6 m-auto">
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">apiKey:</span>
+            <input type="text" class="form-control" id="apiKey" name="apiKey"
+              value=""><br><br>
+          </div>
+
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">authDomain:</span>
+            <input type="text" class="form-control" id="authDomain" name="authDomain"
+              value=""><br><br>
+          </div>
+
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">projectId:</span>
+            <input type="text" class="form-control" id="projectId" name="projectId"
+              value=""><br><br>
+          </div>
+
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">storageBucket:</span>
+            <input type="text" class="form-control" id="storageBucket" name="storageBucket"
+              value=""><br><br>
+          </div>
+
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">messagingSenderId:</span>
+            <input type="text" class="form-control" id="messagingSenderId" name="messagingSenderId"
+              value=""><br><br>
+          </div>
+
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">appId:</span>
+            <input type="text" class="form-control" id="appId" name="appId"
+              value=""><br><br>
+          </div>
+
+          <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">measurementId:</span>
+            <input type="text" class="form-control" id="measurementId" name="measurementId"
+              value=""><br><br>
+          </div>
+
+          <div class="d-grid gap-2">
+            <input type="button" class="btn btn-primary" id="details" value="Submit Config">
+          </div>
+
+          <div style="margin: 15px;">
+            <input class="custom-file-upload" class="btn btn-info" type="file" id="csvFileInput value=" Upload CSV"
+              onchange="handleFiles(this.files)" accept=".csv">
+          </div>
+
+          <div id="dvCSV"></div>
+          <div class="d-grid gap-2" style="margin-bottom:10px">
+            <input id="upload_data_button" type="button" class="btn btn-outline-primary" value="Add Data to Firestore" />
+          </div>
+          <p id="results_paragraph">APP status</p>
+        </div>
+      </div>
+
+
+
+    </section>
+
+
+
+
+    <style>
+      html,
+      body {
+        height: 100%;
+        background: #007bff;
+        background: linear-gradient(to right, #0062E6, #33AEFF);
+      }
+      #page-content {
+        flex: 1 0 auto;
+      }
+    </style>
+
+    <footer id="sticky-footer" class="flex-shrink-0 fixed-bottom py-2 bg-dark text-white-50" style="padding:4px">
+      <div class="container text-center">
+        <small>APP by Christoph Mittendorf</small>
+      </div>
+    </footer>
+
+  </body>
+
+</html>
