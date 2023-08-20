@@ -95,15 +95,12 @@ function add_data_to_firestore() {
           console.log("Document successfully written!");
           import_success = true;
           if (import_success == true) { document.getElementById("results_paragraph").innerText = "Import Success!"; }
-
-
         })
         .catch((error) => {
           console.error("Error writing document: ", error);
         });
     };
   };
-
 }
 
 document.getElementById("upload_data_button").addEventListener("click", add_data_to_firestore);
